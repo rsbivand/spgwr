@@ -5,7 +5,6 @@ ggwr.sel <- function(formula, data = list(), coords,
 	adapt=FALSE, gweight=gwr.Gauss, family=gaussian, verbose=TRUE, 
 	longlat=NULL, RMSE=FALSE, tol=.Machine$double.eps^0.25) {
 	if (!is.logical(adapt)) stop("adapt must be logical")
-	if (!is.logical(longlat)) stop("longlat must be logical")
 	if (is(data, "Spatial")) {
 		if (!missing(coords))
 		    warning("data is Spatial* object, ignoring coords argument")
@@ -65,7 +64,7 @@ ggwr.cv.f <- function(bandwidth, formula, data, family, coords, y,
     options(show.error.messages = FALSE)
     for (i in 1:n) {
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bandwidth)
         w.i[i] <- 0
 	if (any(w.i < 0 | is.na(w.i)))
@@ -95,7 +94,7 @@ ggwr.cv.adapt.f <- function(q, formula, data, family, coords, y, gweight,
     options(show.error.messages = FALSE)
     for (i in 1:n) {
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bw[i])
         w.i[i] <- 0
 	if (any(w.i < 0 | is.na(w.i)))

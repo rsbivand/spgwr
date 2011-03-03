@@ -259,7 +259,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		dxs <- spDistsN1(coords, fit.points[i,1:2], 
 		    longlat=GWR_args$longlat)
 		if (any(!is.finite(dxs)))
-			dxs[which(!is.finite(dxs))] <- 0
+			dxs[which(!is.finite(dxs))] <- .Machine$double.xmax/2
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
 		w.i <- gweight(dxs^2, bandwidthR2[i])
 		w.i <- w.i * weights

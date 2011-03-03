@@ -99,7 +99,7 @@ ggwr <- function(formula, data = list(), coords, bandwidth,
 	for (i in 1:n) {
 		dxs <- spDistsN1(coords, fit.points[i,], longlat=longlat)
 		if (any(!is.finite(dxs)))
-			dxs[which(!is.finite(dxs))] <- 0
+			dxs[which(!is.finite(dxs))] <- .Machine$double.xmax/2
 		w.i <- gweight(dxs^2, bandwidth[i])
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))

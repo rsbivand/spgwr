@@ -91,7 +91,7 @@ gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, longlat=FA
     for (i in 1:n) {
 #        xx <- x[i, ]
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bandwidth)
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bandwidth)
 	if (any(w.i < 0 | is.na(w.i)))
@@ -131,7 +131,7 @@ gwr.cv.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE,
     for (i in 1:n) {
         xx <- x[i, ]
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bandwidth)
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bandwidth)
         w.i[i] <- 0
@@ -162,7 +162,7 @@ gwr.aic.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE, longlat=FALS
     for (i in 1:n) {
 #        xx <- x[i, ]
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bw[i])
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bw[i])
 	if (any(w.i < 0 | is.na(w.i)))
@@ -203,7 +203,7 @@ gwr.cv.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE,
     for (i in 1:n) {
         xx <- x[i, ]
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
-	if (!is.finite(dxs[i])) dxs[i] <- 0
+	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bw[i])
         w.i[i] <- 0
 	w.i <- w.i * weights
