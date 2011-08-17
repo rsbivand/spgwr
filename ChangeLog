@@ -1,3 +1,18 @@
+2011-08-17 10:44  rsbivand
+
+	* DESCRIPTION:
+	  adding NAMESPACE, .onLoad()
+
+2011-08-17 10:41  rsbivand
+
+	* NAMESPACE,
+	  R/zzz.R: adding NAMESPACE, .onLoad()
+
+2011-08-17 09:37  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: adding NAMESPACE, onLoad()
+
 2011-08-17 09:37  rsbivand
 
 	* ChangeLog,
