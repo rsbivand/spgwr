@@ -1,3 +1,5 @@
+useDynLib(spgwr)
+
 import(sp)
 importFrom(stats, anova)
 
