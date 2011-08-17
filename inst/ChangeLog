@@ -1,3 +1,24 @@
+2011-08-17 09:37  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: adding NAMESPACE, onLoad()
+
+2011-08-17 09:35  rsbivand
+
+	* NAMESPACE:
+	  adding NAMESPACE, onLoad()
+
+2011-08-17 09:35  rsbivand
+
+	* data/columbus.rda,
+	  data/georgia.rda: adding NAMESPACE, onLoad()
+
+2011-08-17 09:34  rsbivand
+
+	* DESCRIPTION,
+	  R/zzz.R, data/00Index, data/columbus.R, data/georgia.R: adding
+	  NAMESPACE, onLoad()
+
 2011-04-20 14:56  rsbivand
 
 	* DESCRIPTION,
