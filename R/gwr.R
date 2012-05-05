@@ -97,6 +97,16 @@ gwr <- function(formula, data = list(), coords, bandwidth,
             fit.points <- cbind(fit.points, predx)
         }
 #	if (is.null(fit.points)) fit.points <- coords
+# cluster issue with fit.points 120505 Maximilian Spross
+        fit_are_data <- isTRUE(all.equal(fit.points, coords,
+            check.attributes=FALSE))
+        input_predictions <- predictions
+        if (fit_are_data && !predictions) {
+            predictions <- TRUE
+            input_predictions <- FALSE
+            predx <- x
+            fit.points <- cbind(fit.points, predx)
+        }
 	m <- NCOL(x)
 	if (NROW(x) != NROW(coords))
 		stop("Input data and coordinates have different dimensions")
@@ -117,7 +127,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 
 	GWR_args <- list(fp.given=fp.given, hatmatrix=hatmatrix, 
 	    longlat=longlat, bandwidth=bandwidth, adapt=adapt, se.fit=se.fit,
-	    predictions=predictions, se.fit.CCT=se.fit.CCT)
+	    predictions=predictions, se.fit.CCT=se.fit.CCT, 
+            fit_are_data=fit_are_data)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 
@@ -163,6 +174,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	} # cl
         timings[["run_gwr"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
+        if (predictions && !input_predictions) predictions <- FALSE
 	if (!fp.given && hatmatrix) {
 
 	#This section calculates the effective degree of freedoms, edf;
@@ -244,7 +256,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
             .ptime_start <- proc.time()
 	}
 #	df <- data.frame(sum.w=sum.w, gwr.b, gwr.R2, gwr.se, gwr.e)
-	if (!fp.given && is.null(fittedGWRobject)) {
+# cluster issue with fit.points 120505 Maximilian Spross
+	if ((!fp.given || fit_are_data) && is.null(fittedGWRobject)) {
 	    localR2 <- numeric(n)	    
 	    if (is.null(adapt)) {
 		    bw <- bandwidth
@@ -500,7 +513,9 @@ print.gwr <- function(x, ...) {
                   }
 		}
 # assigning residual bug Torleif Markussen Lunde 090529
-		if (!GWR_args$fp.given) gwr.e[i] <- ei[i]
+# cluster issue with fit.points 120505 Maximilian Spross
+		if (!GWR_args$fp.given || GWR_args$fit_are_data) 
+                    gwr.e[i] <- ei[i]
 
 		if (!GWR_args$fp.given && GWR_args$hatmatrix && (p==m)) 
 			lhat[i,] <- t(x[i,]) %*% inv.Z %*% t(x) %*% diag(w.i)
