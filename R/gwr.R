@@ -133,7 +133,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
         .ptime_start <- proc.time()
 
 	if (!is.null(cl) && length(cl) > 1 && fp.given && !hatmatrix) {
-            require(snow)
+            require(parallel)
 	    l_fp <- lapply(splitIndices(nrow(fit.points), length(cl)), 
 	        function(i) fit.points[i,])
 	    clusterEvalQ(cl, library(spgwr))
