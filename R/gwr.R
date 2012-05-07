@@ -4,7 +4,7 @@
 gwr <- function(formula, data = list(), coords, bandwidth, 
 	gweight=gwr.Gauss, adapt=NULL, hatmatrix=FALSE, fit.points, 
 	longlat=NULL, se.fit=FALSE, weights, cl=NULL, predictions=FALSE,
-        fittedGWRobject=NULL, se.fit.CCT=TRUE) {
+        fittedGWRobject=NULL, se.fit.CCT=TRUE, use_snow=FALSE) {
         timings <- list()
         .ptime_start <- proc.time()
 	this.call <- match.call()
@@ -133,7 +133,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
         .ptime_start <- proc.time()
 
 	if (!is.null(cl) && length(cl) > 1 && fp.given && !hatmatrix) {
-            require(parallel)
+            if (use_snow) require(snow)
+            else require(parallel)
 	    l_fp <- lapply(splitIndices(nrow(fit.points), length(cl)), 
 	        function(i) fit.points[i,])
 	    clusterEvalQ(cl, library(spgwr))
