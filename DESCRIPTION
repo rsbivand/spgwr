@@ -1,6 +1,6 @@
 Package: spgwr
-Version: 0.6-15
-Date: 2012-05-05
+Version: 0.6-16
+Date: 2012-07-16
 Title: Geographically weighted regression
 Author: Roger Bivand and Danlin Yu, contributions by Tomoki Nakaya, tricube function based on a contribution by Miquel-Angel Garcia-Lopez
 Maintainer: Roger Bivand <Roger.Bivand@nhh.no>
