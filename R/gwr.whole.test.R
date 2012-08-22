@@ -78,7 +78,7 @@ BFC99.gwr.test <- function(x) {
 #          tol = 10 * .Machine$double.eps, DUP = FALSE, 
 #          PACKAGE = "stats")[c("hat", "coefficients", "sigma", "wt.res")]
 	
-	hatvalues <- hatvalues(lm(x$lm$y ~ x$lm$x))
+	hatvalues <- hatvalues(lm(x$lm$y ~ x$lm$x, weights=x$lm$weights))
 	parameter <- c(((DFo-DFg1)^2)/(sum(((1-hatvalues) - diag(R))^2)),
 		(DFg1^2)/DFg2)
 	names(parameter) <- c("df1", "df2")
