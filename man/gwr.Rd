@@ -41,7 +41,10 @@ gwr(formula, data=list(), coords, bandwidth, gweight=gwr.Gauss,
 \details{
 The function applies the weighting function in turn to each of the 
 observations, or fit points if given, calculating a weighted regression 
-for each point. The results may be explored to see if coefficient values vary over space. The local coefficient estimates may be made on a multi-node cluster using the \code{cl} argument to pass through a \pkg{parallel} cluster. The function will then divide the fit points (which must be given separately) between the clusters for fitting. Note that each node will need to have the \dQuote{spgwr} package present, so initiating by \code{clusterEvalQ(cl, library(spgwr))} may save a little time per node. The function clears the global environment on the node of objects sent. Using two nodes reduces timings to a little over half the time for a single node.}
+for each point. The results may be explored to see if coefficient values vary over space. The local coefficient estimates may be made on a multi-node cluster using the \code{cl} argument to pass through a \pkg{parallel} cluster. The function will then divide the fit points (which must be given separately) between the clusters for fitting. Note that each node will need to have the \dQuote{spgwr} package present, so initiating by \code{clusterEvalQ(cl, library(spgwr))} may save a little time per node. The function clears the global environment on the node of objects sent. Using two nodes reduces timings to a little over half the time for a single node.
+
+The section of the examples code now includes two simulation scenarios, showing how important it is to check that mapped pattern in local coefficients is actually there, rather than being an artefact.
+}
 
 \value{
 A list of class \dQuote{gwr}:
@@ -86,6 +89,46 @@ brks <- c(-0.25, 0, 0.01, 0.025, 0.075)
 cols <- grey(5:2/6)
 plot(res.adpt$SDF, col=cols[findInterval(res.adpt$SDF$PctBlack, brks,
  all.inside=TRUE)])
+# simulation scenario with patterned dependent variable
+set.seed(1)
+X0 <- runif(nrow(gSRDF)*3)
+X1 <- matrix(sample(X0), ncol=3)
+X1 <- prcomp(X1, center=FALSE, scale.=FALSE)$x
+gSRDF$X1 <- X1[,1]
+gSRDF$X2 <- X1[,2]
+gSRDF$X3 <- X1[,3]
+bw <- gwr.sel(PctBach ~ X1 + X2 + X3, data=gSRDF, verbose=FALSE)
+out <- gwr(PctBach ~ X1 + X2 + X3, data=gSRDF, bandwidth=bw, hatmatrix=TRUE)
+out
+spplot(gSRDF, "PctBach", col.regions=grey.colors(20))
+spplot(gSRDF, c("X1", "X2", "X3"), col.regions=grey.colors(20))
+# pattern in the local coefficients
+spplot(out$SDF, c("X1", "X2", "X3"), col.regions=grey.colors(20))
+# but no "significant" pattern
+spplot(out$SDF, c("X1_se", "X2_se", "X3_se"), col.regions=grey.colors(20))
+out$SDF$X1_t <- out$SDF$X1/out$SDF$X1_se
+out$SDF$X2_t <- out$SDF$X2/out$SDF$X2_se
+out$SDF$X3_t <- out$SDF$X3/out$SDF$X3_se
+spplot(out$SDF, c("X1_t", "X2_t", "X3_t"), col.regions=grey.colors(20))
+# simulation scenario with random dependent variable
+yrn <- rnorm(nrow(gSRDF))
+gSRDF$yrn <- sample(yrn)
+bw <- gwr.sel(yrn ~ X1 + X2 + X3, data=gSRDF, verbose=FALSE)
+# bandwidth selection maxes out at 620 km, equal to upper bound
+# of line search
+out <- gwr(yrn ~ X1 + X2 + X3, data=gSRDF, bandwidth=bw, hatmatrix=TRUE)
+out
+spplot(gSRDF, "yrn", col.regions=grey.colors(20))
+spplot(gSRDF, c("X1", "X2", "X3"), col.regions=grey.colors(20))
+# pattern in the local coefficients
+spplot(out$SDF, c("X1", "X2", "X3"), col.regions=grey.colors(20))
+# but no "significant" pattern
+spplot(out$SDF, c("X1_se", "X2_se", "X3_se"), col.regions=grey.colors(20))
+out$SDF$X1_t <- out$SDF$X1/out$SDF$X1_se
+out$SDF$X2_t <- out$SDF$X2/out$SDF$X2_se
+out$SDF$X3_t <- out$SDF$X3/out$SDF$X3_se
+spplot(out$SDF, c("X1_t", "X2_t", "X3_t"), col.regions=grey.colors(20))
+# end of simulations
 data(meuse)
 coordinates(meuse) <- c("x", "y")
 meuse$ffreq <- factor(meuse$ffreq)
