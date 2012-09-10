@@ -1,4 +1,4 @@
-# Copyright 2001-2008 Roger Bivand and Danlin Yu
+# Copyright 2001-2012 Roger Bivand and Danlin Yu
 # 
 
 gwr.sel <- function(formula, data = list(), coords, adapt=FALSE, 
@@ -79,6 +79,8 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 		q <- opt$minimum
 		res <- q
 	}
+        if (isTRUE(all.equal(beta2, res, tolerance=.Machine$double.eps^(1/4))))
+            warning("Bandwidth converged to upper bound:", beta2)
 	res
 }
 
