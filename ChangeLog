@@ -1,3 +1,11 @@
+2012-10-12 02:34  rsbivand
+
+	* ChangeLog,
+	  DESCRIPTION,
+	  R/gwr.cv.R,
+	  man/gwr.cv.Rd:
+	  show.error.messages
+
 2012-09-10 08:15  rsbivand
 
 	* R/gwr.cv.R,
