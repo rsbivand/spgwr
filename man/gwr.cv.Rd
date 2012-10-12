@@ -14,7 +14,7 @@ bandwidth minimizing this quantity.
 \usage{
 gwr.sel(formula, data=list(), coords, adapt=FALSE, gweight=gwr.Gauss,
  method = "cv", verbose = TRUE, longlat=NULL, RMSE=FALSE, weights,
- tol=.Machine$double.eps^0.25)
+ tol=.Machine$double.eps^0.25, show.error.messages = FALSE)
 }
 \arguments{
   \item{formula}{regression model formula as in \code{lm}}
@@ -30,6 +30,7 @@ gwr.sel(formula, data=list(), coords, adapt=FALSE, gweight=gwr.Gauss,
   \item{RMSE}{default FALSE to correspond with CV scores in newer references (sum of squared CV errors), if TRUE the previous behaviour of scoring by LOO CV RMSE}
   \item{weights}{case weights used as in weighted least squares, beware of scaling issues --- only used with the cross-validation method, probably unsafe}
   \item{tol}{the desired accuracy to be passed to \code{optimize}}
+  \item{show.error.messages}{default FALSE; may be set to TRUE to see error messages if \code{gwr.sel} returns without a value}
 }
 \details{If the regression contains little pattern, the bandwidth will converge to the upper bound of the line search, which is the diagonal of the bounding box of the data point coordinates for \dQuote{adapt=FALSE}, and 1 for \dQuote{adapt=TRUE}; see the simulation block in the examples below.}
 \value{
