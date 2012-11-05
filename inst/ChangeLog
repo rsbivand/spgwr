@@ -1,3 +1,12 @@
+2012-11-05 18:08  rsbivand
+
+	* man/ggwr.sel.Rd, man/gw.cov.Rd, man/gwr.Rd: donttest some
+	  examples
+
+2012-11-05 17:52  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2012-10-12 02:34  rsbivand
 
 	* ChangeLog, inst/ChangeLog: show.error.messages
