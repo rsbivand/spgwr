@@ -90,6 +90,7 @@ brks <- c(-0.25, 0, 0.01, 0.025, 0.075)
 cols <- grey(5:2/6)
 plot(res.adpt$SDF, col=cols[findInterval(res.adpt$SDF$PctBlack, brks,
  all.inside=TRUE)])
+\donttest{
 # simulation scenario with patterned dependent variable
 set.seed(1)
 X0 <- runif(nrow(gSRDF)*3)
@@ -130,6 +131,8 @@ out$SDF$X2_t <- out$SDF$X2/out$SDF$X2_se
 out$SDF$X3_t <- out$SDF$X3/out$SDF$X3_se
 spplot(out$SDF, c("X1_t", "X2_t", "X3_t"), col.regions=grey.colors(20))
 # end of simulations
+}
+\donttest{
 data(meuse)
 coordinates(meuse) <- c("x", "y")
 meuse$ffreq <- factor(meuse$ffreq)
@@ -144,6 +147,7 @@ x <- gwr(cadmium ~ dist, meuse, bandwidth = 228, fit.points = meuse.grid,
 x
 spplot(x$SDF, "pred")
 spplot(x$SDF, "pred.se")
+}
 \dontrun{
   g.bw.gauss <- gwr.sel(PctBach ~ TotPop90 + PctRural + PctEld + PctFB +
     PctPov + PctBlack, data=gSRDF)
