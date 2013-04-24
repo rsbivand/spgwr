@@ -12,7 +12,6 @@ Suggests: spdep, parallel, snow
 Description: Functions for computing geographically weighted
   regressions based on work by Chris
   Brunsdon, Martin Charlton and Stewart Fortheringham,
-  http://ncg.nuim.ie/ncg/GWR/index.htm
+  http://gwr.nuim.ie/
 License: GPL (>= 2)
-URL: http://ncg.nuim.ie/ncg/GWR/index.htm
 
