@@ -1,4 +1,4 @@
-%\VignetteIndexEntry{The Problem of Spatial Autocorrelation}
+%\VignetteIndexEntry{Geographically Weighted Regression}
 %\VignetteDepends{}
 %\VignetteKeywords{spatial}
 %\VignettePackage{spdep}
