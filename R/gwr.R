@@ -1,4 +1,4 @@
-# Copyright 2001-2009 Roger Bivand and Danlin Yu
+# Copyright 2001-2013 Roger Bivand and Danlin Yu
 # 
 
 gwr <- function(formula, data = list(), coords, bandwidth, 
@@ -80,7 +80,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
                 }
 		Polys <- NULL
 		if (is(fit.points, "SpatialPolygonsDataFrame")) {
-			Polys <- Polygons(fit.points)
+			Polys <- as(fit.points, "SpatialPolygons")
 			fit.points <- coordinates(fit.points)
 		} else {
 			griddedObj <- gridded(fit.points)
