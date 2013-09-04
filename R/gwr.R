@@ -119,6 +119,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
             stopifnot(is.numeric(adapt))
             stopifnot((adapt >= 0))
             stopifnot((adapt <= 1))
+        } else {
+            stopifnot(length(bandwidth) == 1)
         }
 	if (missing(bandwidth)) bandwidth <- NULL
 	lhat <- NA
@@ -368,7 +370,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	z <- list(SDF=SDF, lhat=lhat, lm=lm, results=results, 
 		bandwidth=bw, adapt=adapt, hatmatrix=hatmatrix, 
 		gweight=deparse(substitute(gweight)), gTSS=gTSS,
-                this.call=this.call,
+                this.call=this.call, fp.given=fp.given,
                 timings=do.call("rbind", timings)[, c(1, 3)])
 	class(z) <- "gwr"
 	invisible(z)
@@ -380,12 +382,14 @@ print.gwr <- function(x, ...) {
 	cat("Call:\n")
 	print(x$this.call)
 	cat("Kernel function:", x$gweight, "\n")
-	n <- nrow(coordinates(x$SDF))
+	n <- length(x$lm$residuals)
 	if (is.null(x$adapt)) cat("Fixed bandwidth:", x$bandwidth, "\n")
 	else cat("Adaptive quantile: ", x$adapt, " (about ", 
-		floor(x$adapt*n), " of ", n, ")\n", sep="")
+		floor(x$adapt*n), " of ", n, " data points)\n", sep="")
+        if (x$fp.given) cat("Fit points: ", nrow(x$SDF), "\n", sep="")
 	m <- length(x$lm$coefficients)
-	cat("Summary of GWR coefficient estimates:\n")
+	cat("Summary of GWR coefficient estimates at ",
+            ifelse(x$fp.given, "fit", "data"), " points:\n", sep="")
         df0 <- as(x$SDF, "data.frame")[,(1+(1:m)), drop=FALSE]
         if (any(is.na(df0))) {
             df0 <- na.omit(df0)
@@ -393,8 +397,10 @@ print.gwr <- function(x, ...) {
         }
 	CM <- t(apply(df0, 2, summary))[,c(1:3,5,6)]
 	if (is.null(dim(CM))) CM <- t(as.matrix(CM))
-	CM <- cbind(CM, coefficients(x$lm))
-	colnames(CM) <- c(colnames(CM)[1:5], "Global")
+        if (!x$fp.given) {
+	    CM <- cbind(CM, coefficients(x$lm))
+	    colnames(CM) <- c(colnames(CM)[1:5], "Global")
+        }
 	printCoefmat(CM)
 	if (x$hatmatrix) {
 		cat("Number of data points:", n, "\n")
