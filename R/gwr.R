@@ -143,7 +143,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
                 warning("As parallel now supports MPI clusters, support\nfor snow will be withdrawn at the next release")
             } else require(parallel)
 	    l_fp <- lapply(splitIndices(nrow(fit.points), length(cl)), 
-	        function(i) fit.points[i,])
+	        function(i) fit.points[i,, drop=FALSE])
 	    clusterEvalQ(cl, library(spgwr))
             varlist <- list("GWR_args", "coords", "gweight", "y",
 	        "x", "weights", "yhat")
@@ -282,8 +282,9 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		    bw <- bandwidth
 		    bandwidthR2 <- rep(bandwidth, n)
 	    } else {
-		bandwidthR2 <- gw.adapt(dp=coords, fp=fit.points[,1:2], 
-		    quant=adapt, longlat=longlat)
+		bandwidthR2 <- gw.adapt(dp=coords, fp=fit.points[,1:2,
+                    drop=FALSE], quant=adapt, longlat=longlat)
+# Maciej Kryza 130906 drop issue
 		bw <- bandwidthR2
 	    }
 	    if (any(bandwidth < 0)) stop("Invalid bandwidth")
@@ -351,7 +352,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
         }
 
 	df <- as.data.frame(df$df)
-	if (predictions) fit.points <- fit.points[,1:2]
+	if (predictions) fit.points <- fit.points[,1:2, drop=FALSE]
+# Maciej Kryza 130906 drop issue
         row.names(fit.points) <- row.names(df)
 	SDF <- SpatialPointsDataFrame(coords=fit.points, 
 		data=df, proj4string=CRS(p4s))
@@ -428,8 +430,9 @@ print.gwr <- function(x, ...) {
 .GWR_int <- function(fit.points, coords, gweight, y, x, weights, yhat, 
 	GWR_args) {
 	    if (GWR_args$predictions) {
-                predx <- fit.points[, -c(1,2)]
-                fit.points <- fit.points[, c(1,2)]
+                predx <- fit.points[, -c(1,2), drop=FALSE]
+                fit.points <- fit.points[, c(1,2), drop=FALSE]
+# Maciej Kryza 130906 drop issue
             }
             
 	    n <- nrow(fit.points)
