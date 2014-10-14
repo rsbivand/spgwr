@@ -159,6 +159,7 @@ spplot(x$SDF, "pred.se")
   g.bw.gauss <- gwr.sel(PctBach ~ TotPop90 + PctRural + PctEld + PctFB +
     PctPov + PctBlack, data=gSRDF, longlat=TRUE)
   data(gSRouter)
+  require(maptools)
   SG <- GE_SpatialGrid(gSRouter, maxPixels = 100)
   SPxMASK0 <- over(SG$SG, gSRouter)
   SGDF <- SpatialGridDataFrame(slot(SG$SG, "grid"),
@@ -171,6 +172,7 @@ spplot(x$SDF, "pred.se")
   res.bw
   res.bw$timings
   spplot(res.bw$SDF, "PctBlack")
+  require(parallel)
   cl <- makeCluster(detectCores())
   res.bwc <- gwr(PctBach ~ TotPop90 + PctRural + PctEld + PctFB + PctPov +
     PctBlack, data=gSRDF, bandwidth=g.bw.gauss, fit.points=SPxDF,
