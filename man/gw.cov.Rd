@@ -68,7 +68,8 @@ set.seed(1)
 pts <- data.frame(x=runif(100, 0, 5), y=runif(100, 0, 5), z=rnorm(100))
 coordinates(pts) <- c("x", "y")
 proj4string(pts) <- CRS("+proj=longlat +ellps=WGS84")
-fps <- SpatialPoints(cbind(x=runif(100, 0, 5), y=runif(100, 0, 5)), proj4string=CRS("+proj=longlat +ellps=WGS84"))
+fps <- SpatialPoints(cbind(x=runif(100, 0, 5), y=runif(100, 0, 5)),
+ proj4string=CRS("+proj=longlat +ellps=WGS84"))
 t0 <- gw.cov(pts, "z", fp=fps, adapt=0.2, longlat=TRUE)
 }
 
