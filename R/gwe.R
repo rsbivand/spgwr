@@ -81,6 +81,7 @@ gw.cov <- function(x, vars, fp, adapt=NULL, bw, gweight=gwr.bisquare,
                 }
 	} else stop("x must be a Spatial Polygons or Points DataFrame")
         if (is.null(longlat) || !is.logical(longlat)) longlat <- FALSE
+        if (is.integer(vars)) vars <- names(x)[vars]
         stopifnot(is.character(vars))
 	x <- as.matrix(data[, vars])
 	if (any(is.na(x))) stop("x contains NAs")
