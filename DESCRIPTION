@@ -1,6 +1,6 @@
 Package: spgwr
-Version: 0.6-28
-Date: 2015-09-27
+Version: 0.6-29
+Date: 2016-12-09
 Title: Geographically Weighted Regression
 Authors@R: c(
 	person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Bivand@nhh.no"),
