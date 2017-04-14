@@ -1,3 +1,12 @@
+2017-04-14 10:45  rsbivand
+
+	* src/init.c: added registration
+
+2017-04-12 17:08  rsbivand
+
+	* ChangeLog, DESCRIPTION, inst/ChangeLog, src/gwe.c: zero distance
+	  issue fix
+
 2017-01-08 19:47  rsbivand
 
 	* ChangeLog, inst/ChangeLog: tidy
