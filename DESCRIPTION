@@ -1,15 +1,15 @@
 Package: spgwr
-Version: 0.6-31
-Date: 2017-04-22
+Version: 0.6-32
+Date: 2017-10-28
 Title: Geographically Weighted Regression
 Authors@R: c(
-	person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Bivand@nhh.no"),
+	person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Bivand@nhh.no", comment=c(ORCID="0000-0003-2392-6140")),
 	person("Danlin", "Yu", role = "aut"),
 	person("Tomoki", "Nakaya", role = "ctb"),
 	person("Miquel-Angel", "Garcia-Lopez", role = "ctb"))
 Depends: R (>= 2.14), sp (>= 0.8-3)
 Imports: stats, methods
-Suggests: spdep, parallel, maptools (>= 0.7-32)
+Suggests: spdep, spData (>= 0.2.6.2), parallel, maptools (>= 0.7-32), rgdal
 Description: Functions for computing geographically weighted
   regressions are provided, based on work by Chris
   Brunsdon, Martin Charlton and Stewart Fotheringham. 
