@@ -14,4 +14,4 @@ Description: Functions for computing geographically weighted
   regressions are provided, based on work by Chris
   Brunsdon, Martin Charlton and Stewart Fotheringham. 
 License: GPL (>= 2)
-
+RoxygenNote: 6.1.1
