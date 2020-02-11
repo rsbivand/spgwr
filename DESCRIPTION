@@ -14,4 +14,5 @@ Description: Functions for computing geographically weighted
   regressions are provided, based on work by Chris
   Brunsdon, Martin Charlton and Stewart Fotheringham. 
 License: GPL (>= 2)
+URL: http://rspatial.r-forge.r-project.org/spgwr/
 RoxygenNote: 6.1.1
