@@ -1,10 +1,10 @@
 Package: spgwr
 Version: 0.6-36
-Date: 2022-09-01
+Date: 2023-06-21
 Title: Geographically Weighted Regression
 Authors@R: c(
 	person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Bivand@nhh.no", comment=c(ORCID="0000-0003-2392-6140")),
-	person("Danlin", "Yu", role = "aut"),
+	person("Danlin", "Yu", role = "aut", comment=c(ORCID="0000-0002-4470-7011")),
 	person("Tomoki", "Nakaya", role = "ctb"),
 	person("Miquel-Angel", "Garcia-Lopez", role = "ctb"))
 Depends: R (>= 2.14), sp (>= 0.8-3), spData (>= 0.2.6.2)
@@ -14,5 +14,6 @@ Description: Functions for computing geographically weighted
   regressions are provided, based on work by Chris
   Brunsdon, Martin Charlton and Stewart Fotheringham. 
 License: GPL (>= 2)
-URL: http://rspatial.r-forge.r-project.org/spgwr/
+Bugs: https://github.com/rsbivand/spgwr/issues
+URL: https://github.com/rsbivand/spgwr/, https://rsbivand.github.io/spgwr/
 RoxygenNote: 6.1.1
