@@ -5,3 +5,5 @@
 * convert vignette to markdown
 
 * class tests upgraded to `inherits`
+
+* drop retiring spatial packages
