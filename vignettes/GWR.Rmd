@@ -125,7 +125,7 @@ pairs(as(ggwrG$SDF, "data.frame")[,2:5])
 ```
 
 If, on the other hand, we consider this indication in the
-light of Fig.\,\ref{fig:ggwr_pairs}, it is clear that the forcing
+light of the figure above, it is clear that the forcing
 artefacts found by @wheeler+tiefelsdorf:05 in a different
 data set are replicated here.
 
