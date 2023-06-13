@@ -5,6 +5,8 @@
 
 ### spgwr: Geographically Weighted Regression
 
-Repository for onward migration to new maintainer
+Repository for onward migration to new maintainer.
+
+Now without retiring spatial packages.
 
 Default branch now `main`.
