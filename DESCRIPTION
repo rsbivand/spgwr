@@ -16,5 +16,6 @@ Description: Functions for computing geographically weighted
   Brunsdon, Martin Charlton and Stewart Fotheringham. 
 License: GPL (>= 2)
 BugReports: https://github.com/rsbivand/spgwr/issues
+VignetteBuilder: knitr
 URL: https://github.com/rsbivand/spgwr/, https://rsbivand.github.io/spgwr/
 RoxygenNote: 6.1.1
