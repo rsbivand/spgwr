@@ -3,7 +3,7 @@
 
 ggwr <- function(formula, data = list(), coords, bandwidth, 
 	gweight=gwr.Gauss, adapt=NULL, fit.points, family=gaussian,
-	longlat=NULL, type=c("working", "deviance", "pearson", "response")) {
+	longlat=NULL, type=c("working", "deviance", "pearson", "response"), C=NULL) {
 	type <- match.arg(type)
 	resid_name <- paste(type, "resids", sep="_")
 	this.call <- match.call()
@@ -103,7 +103,7 @@ ggwr <- function(formula, data = list(), coords, bandwidth,
 		dxs <- spDistsN1(coords, fit.points[i,], longlat=longlat)
 		if (any(!is.finite(dxs)))
 			dxs[which(!is.finite(dxs))] <- .Machine$double.xmax/2
-		w.i <- gweight(dxs^2, bandwidth[i])
+		w.i <- gweight(dxs^2, bandwidth[i], C=NULL)
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))
 		lm.i <- glm.fit(y=y, x=x, weights=w.i, offset=offset,
@@ -143,7 +143,7 @@ ggwr <- function(formula, data = list(), coords, bandwidth,
 	z <- list(SDF=SDF, lhat=lhat, lm=glm_fit, results=NULL, 
 		bandwidth=bw, adapt=adapt, hatmatrix=FALSE, 
 		gweight=deparse(substitute(gweight)), fp.given=fp.given,
-                this.call=this.call)
+                this.call=this.call, C=C)
 	class(z) <- "gwr"
 	invisible(z)
 }

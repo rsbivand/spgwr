@@ -12,11 +12,12 @@ and \eqn{d} is the distance at which weights are set to zero.
 
 }
 \usage{
-gwr.tricube(dist2, d)
+gwr.tricube(dist2, d, C = NULL)
 }
 \arguments{
   \item{dist2}{vector of squared distances between observations}
   \item{d}{distance at which weights are set to zero}
+  \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
 }
 \value{
 matrix of weights.

@@ -50,7 +50,7 @@ gw.adapt <- function(dp, fp, quant, longlat=FALSE) {
 
 
 gw.cov <- function(x, vars, fp, adapt=NULL, bw, gweight=gwr.bisquare, 
-		cor=TRUE, var.term=FALSE, longlat=NULL) {
+		cor=TRUE, var.term=FALSE, longlat=NULL, C=NULL) {
 	p4s <- as.character(NA)
 	Polys <- NULL
 	fp.missing <- missing(fp)
@@ -104,7 +104,7 @@ gw.cov <- function(x, vars, fp, adapt=NULL, bw, gweight=gwr.bisquare,
 			# calculate hat matrix trace
 		dxs <- spDistsN1(dp, dp[i,], longlat=longlat)
 		if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
-		wts <- gweight(dist2=dxs^2, bw0[i])
+		wts <- gweight(dist2=dxs^2, bw0[i], C=C)
 		if (any(wts < 0 | is.na(wts))) {
 			print(dxs)
 			print(wts)
@@ -165,7 +165,7 @@ gw.cov <- function(x, vars, fp, adapt=NULL, bw, gweight=gwr.bisquare,
 		if (any(!is.finite(dxs)))
 			dxs[which(!is.finite(dxs))] <- 0
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
-		wts <- gweight(dxs^2, bw[i])
+		wts <- gweight(dxs^2, bw[i], C=C)
 		if (any(wts < 0 | is.na(wts))) {
 			print(dxs)
 			print(wts)
@@ -211,7 +211,7 @@ gw.cov <- function(x, vars, fp, adapt=NULL, bw, gweight=gwr.bisquare,
 		SDF <- SpatialPolygonsDataFrame(Sr=Polys, data=df)
 	}
 	res <- list(SDF=SDF, bandwidth=bw, adapt=adapt,  
-		gweight=deparse(substitute(gweight)))
+		gweight=deparse(substitute(gweight)), C=C)
 	class(res) <- c("gw.cov", "matrix")
 	attr(res, "swts") <- swts
 	attr(res, "sdswts2") <- swts2

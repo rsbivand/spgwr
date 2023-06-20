@@ -197,6 +197,7 @@ LMZ.F3GWR.test <- function(go) {
 	delta2 <- go$results$delta2
 	sigma2 <- go$results$sigma2
 	gweight <- eval(parse(text=go$gweight))
+        C <- go$C
 	bw <- go$bandwidth
 	adapt <- go$adapt
 	coords <- coordinates(go$SDF)
@@ -237,7 +238,7 @@ LMZ.F3GWR.test <- function(go) {
 		B <- matrix (nrow = n, ncol = n)
 		for (j in 1:n){
 			wj <- gweight(spDistsN1(coords, coords[j,])^2, 
-				bandwidth[j])
+				bandwidth[j], C=C)
 			B[j,] <- ek[i,] %*% solve(t(x)%*%diag(wj)%*%x) %*%
 				t(x) %*% diag(wj)
 		}

@@ -4,7 +4,7 @@
 gwr <- function(formula, data = list(), coords, bandwidth, 
 	gweight=gwr.Gauss, adapt=NULL, hatmatrix=FALSE, fit.points, 
 	longlat=NULL, se.fit=FALSE, weights, cl=NULL, predictions=FALSE,
-        fittedGWRobject=NULL, se.fit.CCT=TRUE) {
+        fittedGWRobject=NULL, se.fit.CCT=TRUE, C=NULL) {
         timings <- list()
         .ptime_start <- proc.time()
 	this.call <- match.call()
@@ -133,7 +133,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	GWR_args <- list(fp.given=fp.given, hatmatrix=hatmatrix, 
 	    longlat=longlat, bandwidth=bandwidth, adapt=adapt, se.fit=se.fit,
 	    predictions=predictions, se.fit.CCT=se.fit.CCT, 
-            fit_are_data=fit_are_data)
+            fit_are_data=fit_are_data, C=C)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 
@@ -294,7 +294,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		if (any(!is.finite(dxs)))
 			dxs[which(!is.finite(dxs))] <- .Machine$double.xmax/2
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
-		w.i <- gweight(dxs^2, bandwidthR2[i])
+		w.i <- gweight(dxs^2, bandwidthR2[i], C=C)
 		w.i <- w.i * weights
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))
@@ -373,7 +373,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		bandwidth=bw, adapt=adapt, hatmatrix=hatmatrix, 
 		gweight=deparse(substitute(gweight)), gTSS=gTSS,
                 this.call=this.call, fp.given=fp.given,
-                timings=do.call("rbind", timings)[, c(1, 3)])
+                timings=do.call("rbind", timings)[, c(1, 3)], C=C)
 	class(z) <- "gwr"
 	invisible(z)
 }
@@ -384,6 +384,7 @@ print.gwr <- function(x, ...) {
 	cat("Call:\n")
 	print(x$this.call)
 	cat("Kernel function:", x$gweight, "\n")
+        if (!is.null(x$C)) cat("Uniform gweight sum:", x$C, "\n")
 	n <- length(x$lm$residuals)
 	if (is.null(x$adapt)) cat("Fixed bandwidth:", x$bandwidth, "\n")
 	else cat("Adaptive quantile: ", x$adapt, " (about ", 
@@ -479,6 +480,7 @@ print.gwr <- function(x, ...) {
 		    quant=GWR_args$adapt, longlat=GWR_args$longlat)
 		bw <- bandwidth
 	    }
+            C <- GWR_args$C
 	    if (any(bandwidth < 0)) stop("Invalid bandwidth")
 	    for (i in 1:n) {
 		dxs <- spDistsN1(coords, fit.points[i,], 
@@ -486,7 +488,7 @@ print.gwr <- function(x, ...) {
 		if (any(!is.finite(dxs)))
 			dxs[which(!is.finite(dxs))] <- 0
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
-		w.i <- gweight(dxs^2, bandwidth[i])
+		w.i <- gweight(dxs^2, bandwidth[i], C=C)
 		w.i <- w.i * weights
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))
@@ -519,8 +521,8 @@ print.gwr <- function(x, ...) {
 		      inv.Z <- chol2inv(lm.i$qr$qr[p1, p1, drop=FALSE])
 # p. 55 CC definition 
                       if (GWR_args$se.fit.CCT) {
-                        C <- inv.Z %*% t(x) %*% diag(w.i)
-                        CC <- C %*% t(C)
+                        Cm <- inv.Z %*% t(x) %*% diag(w.i)
+                        CC <- Cm %*% t(Cm)
 # only return coefficient covariance matrix diagonal raw values
 # for post-processing
                         betase[i,] <- diag(CC)

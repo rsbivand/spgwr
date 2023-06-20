@@ -7,7 +7,7 @@
 }
 \usage{
 gw.cov(x, vars, fp, adapt = NULL, bw, gweight = gwr.bisquare,
- cor = TRUE, var.term = FALSE, longlat = NULL)
+ cor = TRUE, var.term = FALSE, longlat = NULL, C = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,6 +20,7 @@ gw.cov(x, vars, fp, adapt = NULL, bw, gweight = gwr.bisquare,
   \item{cor}{ \code{cor} default TRUE, report correlations in addition to covariances }
   \item{var.term}{ \code{var.term} default FALSE, if TRUE apply a correction to the variance term }
   \item{longlat}{TRUE if point coordinates are longitude-latitude decimal degrees, in which case distances are measured in kilometers; if x is a SpatialPoints object, the value is taken from the object itself}
+  \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
 }
 
 \value{

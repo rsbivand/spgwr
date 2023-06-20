@@ -13,7 +13,7 @@ bandwidth minimizing this quantity.
 \usage{
 ggwr.sel(formula, data = list(), coords, adapt = FALSE, gweight = gwr.Gauss,
  family = gaussian, verbose = TRUE, longlat = NULL, RMSE=FALSE,
- tol=.Machine$double.eps^0.25)
+ tol=.Machine$double.eps^0.25, C = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -30,6 +30,7 @@ ggwr.sel(formula, data = list(), coords, adapt = FALSE, gweight = gwr.Gauss,
   \item{longlat}{TRUE if point coordinates are longitude-latitude decimal degrees, in which case distances are measured in kilometers; if x is a SpatialPoints object, the value is taken from the object itself}
   \item{RMSE}{default FALSE to correspond with CV scores in newer references (sum of squared CV errors), if TRUE the previous behaviour of scoring by LOO CV RMSE}
   \item{tol}{the desired accuracy to be passed to \code{optimize}}
+  \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
 }
 
 \value{

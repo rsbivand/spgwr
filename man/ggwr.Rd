@@ -10,7 +10,7 @@ weighting scheme.
 \usage{
 ggwr(formula, data = list(), coords, bandwidth, gweight = gwr.Gauss,
  adapt = NULL, fit.points, family = gaussian, longlat = NULL, type = 
-c("working", "deviance", "pearson", "response"))
+c("working", "deviance", "pearson", "response"), C = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,6 +28,7 @@ c("working", "deviance", "pearson", "response"))
           be used in the model, see \code{glm}}
   \item{longlat}{TRUE if point coordinates are longitude-latitude decimal degrees, in which case distances are measured in kilometers; if x is a SpatialPoints object, the value is taken from the object itself}
   \item{type}{the type of residuals which should be returned. The alternatives are: "working" (default), "pearson", "deviance" and "response"}
+  \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
 }
 
 \value{

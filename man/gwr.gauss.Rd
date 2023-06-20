@@ -19,12 +19,13 @@ weights using the Gaussian scheme:
 
 }
 \usage{
-gwr.gauss(dist2, bandwidth)
-gwr.Gauss(dist2, bandwidth)
+gwr.gauss(dist2, bandwidth, C = NULL)
+gwr.Gauss(dist2, bandwidth, C = NULL)
 }
 \arguments{
   \item{dist2}{vector of squared distances between observations and fit point}
   \item{bandwidth}{bandwidth}
+  \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
 }
 \value{
 vector of weights.

@@ -3,7 +3,7 @@
 
 ggwr.sel <- function(formula, data = list(), coords, 
 	adapt=FALSE, gweight=gwr.Gauss, family=gaussian, verbose=TRUE, 
-	longlat=NULL, RMSE=FALSE, tol=.Machine$double.eps^0.25) {
+	longlat=NULL, RMSE=FALSE, tol=.Machine$double.eps^0.25, C=NULL) {
 	if (!is.logical(adapt)) stop("adapt must be logical")
 	if (is(data, "Spatial")) {
 		if (!missing(coords))
@@ -42,7 +42,7 @@ ggwr.sel <- function(formula, data = list(), coords,
 			maximum=FALSE, formula=formula, data=data, 
 			family=family, coords=coords, y=y,
 			gweight=gweight, verbose=verbose, longlat=longlat, 
-			RMSE=RMSE, tol=tol)
+			RMSE=RMSE, tol=tol, C=C)
 		bdwt <- opt$minimum
 		res <- bdwt
 	} else {
@@ -52,7 +52,7 @@ ggwr.sel <- function(formula, data = list(), coords,
 			upper=beta2, maximum=FALSE, formula=formula, data=data, 
 			family=family, coords=coords, y=y,
 			gweight=gweight, verbose=verbose, longlat=longlat, 
-			RMSE=RMSE, tol=tol)
+			RMSE=RMSE, tol=tol, C=C)
 		q <- opt$minimum
 		res <- q
 	}
@@ -61,14 +61,14 @@ ggwr.sel <- function(formula, data = list(), coords,
 
 
 ggwr.cv.f <- function(bandwidth, formula, data, family, coords, y,
-	gweight, verbose=TRUE, longlat=FALSE, RMSE=FALSE) {
+	gweight, verbose=TRUE, longlat=FALSE, RMSE=FALSE, C=NULL) {
     n <- nrow(coords)
     cv <- numeric(n)
     options(show.error.messages = FALSE)
     for (i in 1:n) {
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
-	w.i <- gweight(dxs^2, bandwidth)
+	w.i <- gweight(dxs^2, bandwidth, C=C)
         w.i[i] <- 0
 	if (any(w.i < 0 | is.na(w.i)))
        		stop(paste("Invalid weights for i:", i))
@@ -90,7 +90,7 @@ ggwr.cv.f <- function(bandwidth, formula, data, family, coords, y,
 
 
 ggwr.cv.adapt.f <- function(q, formula, data, family, coords, y, gweight, 
-	verbose=TRUE, longlat=FALSE, RMSE=FALSE) {
+	verbose=TRUE, longlat=FALSE, RMSE=FALSE, C=NULL) {
     n <- nrow(coords)
     cv <- numeric(n)
     bw <- gw.adapt(dp=coords, fp=coords, quant=q, longlat=longlat)
@@ -98,7 +98,7 @@ ggwr.cv.adapt.f <- function(q, formula, data, family, coords, y, gweight,
     for (i in 1:n) {
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
-	w.i <- gweight(dxs^2, bw[i])
+	w.i <- gweight(dxs^2, bw[i], C=C)
         w.i[i] <- 0
 	if (any(w.i < 0 | is.na(w.i)))
        		stop(paste("Invalid weights for i:", i))
