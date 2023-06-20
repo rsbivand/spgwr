@@ -1,10 +1,12 @@
-# Copyright 2001-2012 Roger Bivand and Danlin Yu
-# 
+# Copyright 2001-2023 Roger Bivand and Danlin Yu
+# Added Genetic Algorithm for bandwidth/nearest neighbor selection
+#
 
 gwr.sel <- function(formula, data = list(), coords, adapt=FALSE, 
 	gweight=gwr.Gauss, method="cv", verbose=TRUE, longlat=NULL,
         RMSE=FALSE, weights, tol=.Machine$double.eps^0.25,
-        show.error.messages=FALSE) {
+        show.error.messages=FALSE,
+	GA = FALSE, popSize = 50, maxiter = 100, run = 100) {
 	if (!is.logical(adapt)) stop("adapt must be logical")
 	if (is(data, "Spatial")) {
 		if (!missing(coords))
@@ -51,48 +53,143 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 			difmin[which(!is.finite(difmin))] <- 0
 		beta1 <- difmin/1000
 		beta2 <- difmin
-		if (method == "cv") {
-			opt <- optimize(gwr.cv.f, lower=beta1, upper=beta2, 
-				maximum=FALSE, y=y, x=x, coords=coords, 
-				gweight=gweight, verbose=verbose, 
-				longlat=longlat, RMSE=RMSE, weights=weights, 
-                                show.error.messages=show.error.messages,
-				tol=tol)
-		} else {
-			opt <- optimize(gwr.aic.f, lower=beta1, upper=beta2, 
-				maximum=FALSE, y=y, x=x, coords=coords, 
-				gweight=gweight, verbose=verbose, 
-				longlat=longlat, 
-                                show.error.messages=show.error.messages,
-                                tol=tol)
+		if (!GA){
+			if (method == "cv") {
+				opt <- optimize(gwr.cv.f, lower=beta1, upper=beta2, 
+					maximum=FALSE, y=y, x=x, coords=coords, 
+					gweight=gweight, verbose=verbose, 
+					longlat=longlat, RMSE=RMSE, weights=weights, 
+	                                show.error.messages=show.error.messages,
+					tol=tol)
+			} else {
+				opt <- optimize(gwr.aic.f, lower=beta1, upper=beta2, 
+					maximum=FALSE, y=y, x=x, coords=coords, 
+					gweight=gweight, verbose=verbose, 
+					longlat=longlat, 
+	                                show.error.messages=show.error.messages,
+	                                tol=tol)
+			}
+			bdwt <- opt$minimum
+			res <- bdwt
+		} else {			
+			require(GA)
+			verbose = FALSE # For GA, outputing is not necessary.
+			# Define the range for bandwidth (based on your knowledge of the problem)
+			lower_band = beta1 
+			upper_band = beta2
+			if (method == "cv"){
+				# Define the fitness function:
+				gwr.cv.f.ga <- function(bandwidth) {
+								gwr.cv.f(bandwidth = bandwidth, y = y, x = x, coords = coords, gweight = gweight, 
+								verbose = verbose, longlat = longlat, RMSE = RMSE, weights = weights, 
+								show.error.messages = show.error.messages)
+								}
+				# Run the GA
+				GA <- ga(type = "real-valued", 
+						 fitness = function(bandwidth) -gwr.cv.f.ga(bandwidth), 
+						 lower = lower_band, 
+						 upper = upper_band, 
+						 popSize = popSize, 
+						 maxiter = maxiter, 
+						 run = run)
+
+				# Extract the optimal bandwidth
+				optimal_bandwidth <- GA@solution
+				optimal_bandwidth 
+			}
+			else {
+				# Define the fitness function:
+				gwr.aic.f.ga <- function(bandwidth) {
+							gwr.aic.f(bandwidth = bandwidth, y = y, x = x, coords = coords, gweight = gweight, 
+							verbose = verbose, longlat = longlat, RMSE = RMSE, weights = weights, 
+							show.error.messages = show.error.messages)
+							}
+				# Run the GA
+				GA <- ga(type = "real-valued", 
+						 fitness = function(bandwidth) -gwr.aic.f.ga(bandwidth), 
+						 lower = lower_band, 
+						 upper = upper_band, 
+						 popSize = popSize, 
+						 maxiter = maxiter, 
+						 run = run)
+
+				# Extract the optimal bandwidth
+				optimal_bandwidth <- GA@solution
+				optimal_bandwidth
+			}
 		}
-		bdwt <- opt$minimum
-		res <- bdwt
 	} else {
 		beta1 <- 0
 		beta2 <- 1
-		if (method == "cv") {
-			opt <- optimize(gwr.cv.adapt.f, lower=beta1, 
-				upper=beta2, maximum=FALSE, y=y, x=x, 
-				coords=coords, gweight=gweight, 
-				verbose=verbose, longlat=longlat, RMSE=RMSE, 
-				weights=weights, 
-                                show.error.messages=show.error.messages,
-                                tol=tol)
+		if (!GA) {
+			if (method == "cv") {
+				opt <- optimize(gwr.cv.adapt.f, lower=beta1, 
+					upper=beta2, maximum=FALSE, y=y, x=x, 
+					coords=coords, gweight=gweight, 
+					verbose=verbose, longlat=longlat, RMSE=RMSE, 
+					weights=weights, 
+	                                show.error.messages=show.error.messages,
+	                                tol=tol)
+			} else {
+				opt <- optimize(gwr.aic.adapt.f, lower=beta1, 
+					upper=beta2, maximum=FALSE, y=y, x=x, 
+					coords=coords, gweight=gweight, 
+					verbose=verbose, longlat=longlat, 
+	                                show.error.messages=show.error.messages,
+	                                tol=tol)
+			}
+			optimal_q <- opt$minimum
+			optimal_q
 		} else {
-			opt <- optimize(gwr.aic.adapt.f, lower=beta1, 
-				upper=beta2, maximum=FALSE, y=y, x=x, 
-				coords=coords, gweight=gweight, 
-				verbose=verbose, longlat=longlat, 
-                                show.error.messages=show.error.messages,
-                                tol=tol)
+			require(GA)
+			verbose = FALSE # For GA, output is not necessary.
+			# Define the range for bandwidth (based on your knowledge of the problem)
+			lower_band = beta1 
+			upper_band = beta2
+			if (method == "cv"){
+				# Define the fitness function:
+				gwr.cv.adapt.f.ga <- function(q) {
+								gwr.cv.adapt.f(q = q, y = y, x = x, coords = coords, gweight = gweight, 
+								verbose = verbose, longlat = longlat, RMSE = RMSE, weights = weights, 
+								show.error.messages = show.error.messages)
+								}
+				# Run the GA
+				GA <- ga(type = "real-valued", 
+						 fitness = function(q) -gwr.cv.adapt.f.ga(q), 
+						 lower = lower_band, 
+						 upper = upper_band, 
+						 popSize = popSize, 
+						 maxiter = maxiter, 
+						 run = run)
+
+				# Extract the optimal q
+				optimal_q <- GA@solution
+				optimal_q 
+			}
+			else {
+				# Define the fitness function:
+				gwr.aic.adapt.f.ga <- function(q) {
+							gwr.aic.adapt.f(q = q, y = y, x = x, coords = coords, gweight = gweight, 
+							verbose = verbose, longlat = longlat, show.error.messages = show.error.messages)
+				}
+				# Run the GA
+				GA <- ga(type = "real-valued", 
+						 fitness = function(q) -gwr.aic.adapt.f.ga(q), 
+						 lower = lower_band, 
+						 upper = upper_band, 
+						 popSize = popSize, 
+						 maxiter = maxiter, 
+						 run = run)
+
+				# Extract the optimal q
+				optimal_q <- GA@solution
+				optimal_q
+			}
 		}
-		q <- opt$minimum
-		res <- q
 	}
-        if (isTRUE(all.equal(beta2, res, tolerance=.Machine$double.eps^(1/4))))
-            warning("Bandwidth converged to upper bound:", beta2)
-	res
+#        if (isTRUE(all.equal(beta2, res, tolerance=.Machine$double.eps^(1/4))))
+#            warning("Bandwidth converged to upper bound:", beta2)
+#	res
 }
 
 gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, longlat=FALSE, show.error.messages=TRUE) {
