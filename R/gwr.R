@@ -115,12 +115,15 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		stop("Input data and coordinates have different dimensions")
 	if (missing(bandwidth) && is.null(adapt))
 	    stop("Bandwidth must be given for non-adaptive weights")
+        Ca <- NULL
         if (!is.null(adapt)) {
             stopifnot(is.numeric(adapt))
             stopifnot((adapt >= 0))
             stopifnot((adapt <= 1))
+            if (!is.null(attr(adapt, "C"))) Ca <- attr(adapt, "C")$C
         } else {
             stopifnot(length(bandwidth) == 1)
+            if (!is.null(attr(bandwidth, "C"))) Ca <- attr(bandwidth, "C")$C
         }
 	if (missing(bandwidth)) bandwidth <- NULL
 	lhat <- NA
@@ -128,7 +131,11 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	if (!is.null(fittedGWRobject)) {
             yhat <- fittedGWRobject$SDF$pred
         }
-
+        if (is.null(C)) {
+            if (!is.null(Ca)) C <- Ca
+        } else {
+            if (isTRUE(C != Ca)) stop("C used in gwr.sel() ", Ca, " differs from given C ", C)
+        }
 
 	GWR_args <- list(fp.given=fp.given, hatmatrix=hatmatrix, 
 	    longlat=longlat, bandwidth=bandwidth, adapt=adapt, se.fit=se.fit,
