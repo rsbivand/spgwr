@@ -92,6 +92,7 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 	}
         if (isTRUE(all.equal(beta2, res, tolerance=.Machine$double.eps^(1/4))))
             warning("Bandwidth converged to upper bound:", beta2)
+        attr(res, "C") <- list(C=C)
 	res
 }
 
