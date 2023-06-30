@@ -4,7 +4,7 @@
 gwr <- function(formula, data = list(), coords, bandwidth, 
 	gweight=gwr.Gauss, adapt=NULL, hatmatrix=FALSE, fit.points, 
 	longlat=NULL, se.fit=FALSE, weights, cl=NULL, predictions=FALSE,
-        fittedGWRobject=NULL, se.fit.CCT=TRUE, C=NULL) {
+        fittedGWRobject=NULL, se.fit.CCT=TRUE, C=NULL, colstd=FALSE) {
         timings <- list()
         .ptime_start <- proc.time()
 	this.call <- match.call()
@@ -57,6 +57,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
         gTSS <- c(cov.wt(matrix(y, ncol=1), wt=weights, method="ML")$cov*dp.n)
 	if (hatmatrix) se.fit <- TRUE
 	if (hatmatrix) predictions <- TRUE
+        stopifnot(is.logical(colstd))
 
 	if (missing(fit.points)) {
 		fp.given <- FALSE
@@ -140,11 +141,12 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	GWR_args <- list(fp.given=fp.given, hatmatrix=hatmatrix, 
 	    longlat=longlat, bandwidth=bandwidth, adapt=adapt, se.fit=se.fit,
 	    predictions=predictions, se.fit.CCT=se.fit.CCT, 
-            fit_are_data=fit_are_data, C=C)
+            fit_are_data=fit_are_data, C=C, colstd=colstd)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 
-	if (!is.null(cl) && length(cl) > 1 && fp.given && !hatmatrix) {
+	if (!is.null(cl) && length(cl) > 1 && fp.given && !hatmatrix &&
+            !colstd) {
             if (requireNamespace("parallel", quietly = TRUE)) {
 	      l_fp <- lapply(parallel::splitIndices(nrow(fit.points), length(cl)), 
 	        function(i) fit.points[i,, drop=FALSE])
@@ -283,6 +285,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 	}
 #	df <- data.frame(sum.w=sum.w, gwr.b, gwr.R2, gwr.se, gwr.e)
 # cluster issue with fit.points 120505 Maximilian Spross
+        colsums <- df$colsums
 	if ((!fp.given || fit_are_data) && is.null(fittedGWRobject)) {
 	    localR2 <- numeric(n)	    
 	    if (is.null(adapt)) {
@@ -302,6 +305,7 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 			dxs[which(!is.finite(dxs))] <- .Machine$double.xmax/2
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
 		w.i <- gweight(dxs^2, bandwidthR2[i], C=C)
+                if (colstd) w.i <- w.i/colsums
 		w.i <- w.i * weights
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))
@@ -380,7 +384,8 @@ gwr <- function(formula, data = list(), coords, bandwidth,
 		bandwidth=bw, adapt=adapt, hatmatrix=hatmatrix, 
 		gweight=deparse(substitute(gweight)), gTSS=gTSS,
                 this.call=this.call, fp.given=fp.given,
-                timings=do.call("rbind", timings)[, c(1, 3)], C=C)
+                timings=do.call("rbind", timings)[, c(1, 3)], C=C,
+                colstd=colstd)
 	class(z) <- "gwr"
 	invisible(z)
 }
@@ -392,10 +397,12 @@ print.gwr <- function(x, ...) {
 	print(x$this.call)
 	cat("Kernel function:", x$gweight, "\n")
         if (!is.null(x$C)) cat("Uniform gweight sum:", x$C, "\n")
+        if (!is.null(x$colstd) && x$colstd) 
+            cat("Geographical weights column standardized\n")
 	n <- length(x$lm$residuals)
 	if (is.null(x$adapt)) cat("Fixed bandwidth:", x$bandwidth, "\n")
 	else cat("Adaptive quantile: ", x$adapt, " (about ", 
-		floor(x$adapt*n), " of ", n, " data points)\n", sep="")
+	    floor(x$adapt*n), " of ", n, " data points)\n", sep="")
         if (x$fp.given) cat("Fit points: ", nrow(x$SDF), "\n", sep="")
 	m <- length(x$lm$coefficients)
 	cat("Summary of GWR coefficient estimates at ",
@@ -489,6 +496,12 @@ print.gwr <- function(x, ...) {
 	    }
             C <- GWR_args$C
 	    if (any(bandwidth < 0)) stop("Invalid bandwidth")
+            colsums <- 1
+            if (GWR_args$colstd) {
+                colsums <- colsums_calc(fit.points=fit.points, coords=coords,
+                    longlat=GWR_args$longlat, bandwidth=bandwidth, C=C,
+                    gweight=gweight)
+            }
 	    for (i in 1:n) {
 		dxs <- spDistsN1(coords, fit.points[i,], 
 		    longlat=GWR_args$longlat)
@@ -496,6 +509,7 @@ print.gwr <- function(x, ...) {
 			dxs[which(!is.finite(dxs))] <- 0
 #		if (!is.finite(dxs[i])) dxs[i] <- 0
 		w.i <- gweight(dxs^2, bandwidth[i], C=C)
+                if (GWR_args$colstd) w.i <- w.i/colsums
 		w.i <- w.i * weights
 		if (any(w.i < 0 | is.na(w.i)))
         		stop(paste("Invalid weights for i:", i))
@@ -557,8 +571,20 @@ print.gwr <- function(x, ...) {
 	    }
 	    df <- cbind(sum.w, betas, betase, gwr.e, pred, pred.se, localR2)
 	    if (!GWR_args$fp.given && GWR_args$hatmatrix) 
-		return(list(df=df, lhat=lhat, bw=bw))
-	    else return(list(df=df, bw=bw))
+		return(list(df=df, lhat=lhat, bw=bw, colsums=colsums))
+	    else return(list(df=df, bw=bw, colsums=colsums))
 } # GWR_int
 
-
+colsums_calc <- function(fit.points, coords, longlat, bandwidth, C, gweight) {
+    nd <- nrow(coords)
+    colsums <- numeric(nd)
+        for (j in 1:nd) {
+            dys <- spDistsN1(fit.points, coords[j,], 
+	        longlat=longlat)
+	    if (any(!is.finite(dys)))
+		dys[which(!is.finite(dys))] <- 0
+            w.j <- gweight(dys^2, bandwidth, C=C)
+            colsums[j] <- sum(w.j)
+	}
+    colsums
+}

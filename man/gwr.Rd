@@ -11,7 +11,7 @@ weighting scheme.
 gwr(formula, data=list(), coords, bandwidth, gweight=gwr.Gauss, 
 	adapt=NULL, hatmatrix = FALSE, fit.points, longlat=NULL, 
 	se.fit=FALSE, weights, cl=NULL, predictions = FALSE, 
-        fittedGWRobject = NULL, se.fit.CCT = TRUE, C = NULL)
+        fittedGWRobject = NULL, se.fit.CCT = TRUE, C = NULL, colstd = FALSE)
 \method{print}{gwr}(x, \dots)
 }
 
@@ -35,6 +35,7 @@ gwr(formula, data=list(), coords, bandwidth, gweight=gwr.Gauss,
   \item{fittedGWRobject}{a fitted \code{gwr} object with a hatmatrix (optional), if given, and if fit.points are given and if \code{se.fit} is TRUE, two effective degrees of freedom sigmas will be used to generate alternative coefficient standard errors}
   \item{se.fit.CCT}{default TRUE, compute local coefficient standard errors using formula (2.14), p. 55, in the GWR book}
   \item{C}{default NULL; if not null, the value to which distance weights should sum per fit point (see Fotheringham et al. (2002, p. 58))}
+  \item{colstd}{default FALSE, if TRUE, column-standardize geographical weights}
   \item{x}{an object of class "gwr" returned by the \code{gwr} function}
   \item{...}{arguments to be passed to other functions}
 }

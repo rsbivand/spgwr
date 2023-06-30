@@ -3,7 +3,8 @@
 
 ggwr <- function(formula, data = list(), coords, bandwidth, 
 	gweight=gwr.Gauss, adapt=NULL, fit.points, family=gaussian,
-	longlat=NULL, type=c("working", "deviance", "pearson", "response"), C=NULL) {
+	longlat=NULL, type=c("working", "deviance", "pearson", "response"),
+        C=NULL) {
 	type <- match.arg(type)
 	resid_name <- paste(type, "resids", sep="_")
 	this.call <- match.call()

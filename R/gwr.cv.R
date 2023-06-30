@@ -4,7 +4,7 @@
 gwr.sel <- function(formula, data = list(), coords, adapt=FALSE, 
 	gweight=gwr.Gauss, method="cv", verbose=TRUE, longlat=NULL,
         RMSE=FALSE, weights, tol=.Machine$double.eps^0.25,
-        show.error.messages=FALSE, C=NULL) {
+        show.error.messages=FALSE, C=NULL, colstd=FALSE) {
 	if (!is.logical(adapt)) stop("adapt must be logical")
 	if (is(data, "Spatial")) {
 		if (!missing(coords))
@@ -22,6 +22,7 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
         if (is.null(longlat) || !is.logical(longlat)) longlat <- FALSE
 	if (missing(coords))
 		stop("Observation coordinates have to be given")
+        stopifnot(is.logical(colstd))
     	mf <- match.call(expand.dots = FALSE)
     	m <- match(c("formula", "data", "weights"), names(mf), 0)
     	mf <- mf[c(1, m)]
@@ -57,14 +58,14 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 				gweight=gweight, verbose=verbose, 
 				longlat=longlat, RMSE=RMSE, weights=weights, 
                                 show.error.messages=show.error.messages,
-				tol=tol, C=C)
+				tol=tol, C=C, colstd=colstd)
 		} else {
 			opt <- optimize(gwr.aic.f, lower=beta1, upper=beta2, 
 				maximum=FALSE, y=y, x=x, coords=coords, 
 				gweight=gweight, verbose=verbose, 
 				longlat=longlat, 
                                 show.error.messages=show.error.messages,
-                                tol=tol, C=C)
+                                tol=tol, C=C, colstd=colstd)
 		}
 		bdwt <- opt$minimum
 		res <- bdwt
@@ -78,14 +79,14 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 				verbose=verbose, longlat=longlat, RMSE=RMSE, 
 				weights=weights, 
                                 show.error.messages=show.error.messages,
-                                tol=tol, C=C)
+                                tol=tol, C=C, colstd=colstd)
 		} else {
 			opt <- optimize(gwr.aic.adapt.f, lower=beta1, 
 				upper=beta2, maximum=FALSE, y=y, x=x, 
 				coords=coords, gweight=gweight, 
 				verbose=verbose, longlat=longlat, 
                                 show.error.messages=show.error.messages,
-                                tol=tol, C=C)
+                                tol=tol, C=C, colstd=colstd)
 		}
 		q <- opt$minimum
 		res <- q
@@ -96,10 +97,16 @@ gwr.sel <- function(formula, data = list(), coords, adapt=FALSE,
 	res
 }
 
-gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, longlat=FALSE, show.error.messages=TRUE, C=NULL) {
+gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE,
+    longlat=FALSE, show.error.messages=TRUE, C=NULL, colstd=FALSE) {
     n <- NROW(x)
 #    m <- NCOL(x)
     lhat <- matrix(nrow=n, ncol=n)
+    colsums <- 1
+    if (colstd) {
+        colsums <- colsums_calc(fit.points=coords, coords=coords,
+            longlat=longlat, bandwidth=bandwidth, C=C, gweight=gweight)
+    }
     flag <- 0
     options(show.error.messages = show.error.messages)
     for (i in 1:n) {
@@ -108,6 +115,7 @@ gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, longlat=FA
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bandwidth, C=C)
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bandwidth)
+        if (colstd) w.i <- w.i/colsums
 	if (any(w.i < 0 | is.na(w.i)))
        		stop(paste("Invalid weights for i:", i))
         lm.i <- try(lm.wfit(y = y, x = x, w = w.i))
@@ -137,9 +145,15 @@ gwr.aic.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, longlat=FA
 }
 
 gwr.cv.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE, 
-    longlat=FALSE, RMSE=FALSE, weights, show.error.messages=TRUE, C=NULL) {
+    longlat=FALSE, RMSE=FALSE, weights, show.error.messages=TRUE, C=NULL,
+    colstd=FALSE) {
     n <- NROW(x)
 #    m <- NCOL(x)
+    colsums <- 1
+    if (colstd) {
+        colsums <- colsums_calc(fit.points=coords, coords=coords,
+            longlat=longlat, bandwidth=bandwidth, C=C, gweight=gweight)
+    }
     cv <- numeric(n)
     options(show.error.messages = show.error.messages)
     for (i in 1:n) {
@@ -148,6 +162,7 @@ gwr.cv.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE,
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bandwidth, C=C)
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bandwidth)
+        if (colstd) w.i <- w.i/colsums
         w.i[i] <- 0
 	w.i <- w.i * weights
 	if (any(w.i < 0 | is.na(w.i)))
@@ -166,11 +181,17 @@ gwr.cv.f <- function(bandwidth, y, x, coords, gweight, verbose=TRUE,
     score
 }
 
-gwr.aic.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE, longlat=FALSE, show.error.messages=TRUE, C=NULL) {
+gwr.aic.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE,
+    longlat=FALSE, show.error.messages=TRUE, C=NULL, colstd=FALSE) {
     n <- NROW(x)
 #    m <- NCOL(x)
     lhat <- matrix(nrow=n, ncol=n)
     bw <- gw.adapt(dp=coords, fp=coords, quant=q, longlat=longlat)
+    colsums <- 1
+    if (colstd) {
+        colsums <- colsums_calc(fit.points=coords, coords=coords,
+            longlat=longlat, bandwidth=bw, C=C, gweight=gweight)
+    }
     flag <- 0
     options(show.error.messages = show.error.messages)
     for (i in 1:n) {
@@ -179,6 +200,7 @@ gwr.aic.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE, longlat=FALS
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bw[i], C=C)
 #	w.i <- gweight(spDistsN1(coords, coords[i,], longlat=longlat)^2, bw[i])
+        if (colstd) w.i <- w.i/colsums
 	if (any(w.i < 0 | is.na(w.i)))
        		stop(paste("Invalid weights for i:", i))
         lm.i <- try(lm.wfit(y = y, x = x, w = w.i))
@@ -208,17 +230,24 @@ gwr.aic.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE, longlat=FALS
 }
 
 gwr.cv.adapt.f <- function(q, y, x, coords, gweight, verbose=TRUE, 
-    longlat=FALSE, RMSE=FALSE, weights, show.error.messages=TRUE, C=NULL) {
+    longlat=FALSE, RMSE=FALSE, weights, show.error.messages=TRUE, C=NULL,
+    colstd=FALSE) {
     n <- NROW(x)
 #    m <- NCOL(x)
     cv <- numeric(n)
     bw <- gw.adapt(dp=coords, fp=coords, quant=q, longlat=longlat)
+    colsums <- 1
+    if (colstd) {
+        colsums <- colsums_calc(fit.points=coords, coords=coords,
+            longlat=longlat, bandwidth=bw, C=C, gweight=gweight)
+    }
     options(show.error.messages = show.error.messages)
     for (i in 1:n) {
         xx <- x[i, ]
 	dxs <- spDistsN1(coords, coords[i,], longlat=longlat)
 	if (!is.finite(dxs[i])) dxs[i] <- .Machine$double.xmax/2
 	w.i <- gweight(dxs^2, bw[i], C=C)
+        if (colstd) w.i <- w.i/colsums
         w.i[i] <- 0
 	w.i <- w.i * weights
 	if (any(w.i < 0 | is.na(w.i)))
