@@ -178,7 +178,8 @@ spplot(x$SDF, "pred.se")
     res.bw$timings
     spplot(res.bw$SDF, "PctBlack")
     require(parallel)
-    cl <- makeCluster(detectCores())
+    nc <- max(2L, detectCores(logical=FALSE), na.rm = TRUE) - 1L
+    cl <- makeCluster(nc)
     res.bwc <- gwr(PctBach ~ TotPop90 + PctRural + PctEld + PctFB + PctPov +
       PctBlack, data=gSRDF, bandwidth=g.bw.gauss, fit.points=SPxDF,
       longlat=TRUE, cl=cl)
