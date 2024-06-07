@@ -1,6 +1,6 @@
 Package: spgwr
-Version: 0.6-36
-Date: 2023-06-21
+Version: 0.6-37
+Date: 2024-06-06
 Title: Geographically Weighted Regression
 Encoding: UTF-8
 Authors@R: c(
@@ -8,7 +8,7 @@ Authors@R: c(
 	person("Danlin", "Yu", role = "aut", comment=c(ORCID="0000-0002-4470-7011")),
 	person("Tomoki", "Nakaya", role = "ctb"),
 	person("Miquel-Angel", "Garcia-Lopez", role = "ctb"))
-Depends: R (>= 2.14), sp (>= 0.8-3), spData (>= 0.2.6.2)
+Depends: R (>= 2.14), sp (>= 0.8-3), spData (>= 2.3.2)
 Imports: stats, methods
 Suggests: spdep, parallel, sf, knitr, rmarkdown, tinytest
 Description: Functions for computing geographically weighted

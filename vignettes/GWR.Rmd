@@ -57,7 +57,7 @@ library(spgwr)
 
 
 ```{r, eval=FALSE}
-NY8 <- as(st_read(system.file("shapes/NY8_utm18.shp", package="spData")), "Spatial")
+NY8 <- as(st_read(system.file("shapes/NY8_utm18.gpkg", package="spData")), "Spatial")
 ```
 
 
